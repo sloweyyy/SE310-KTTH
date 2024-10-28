@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiAdminDashboard.Controllers
 {
-  [Route("api/[controller]")]
+  [Route("api/v1/[controller]")]
   [ApiController]
   public class AuthController : ControllerBase
   {
@@ -29,35 +29,43 @@ namespace ApiAdminDashboard.Controllers
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterModel register)
     {
-      if (await _context.Users.AnyAsync(u => u.Username == register.Username))
+      if (await _context.Users.AnyAsync(u => u.Email == register.Email))
       {
-        return BadRequest("Username already exists");
+        return BadRequest("Email already exists");
       }
 
       CreatePasswordHash(register.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
       var user = new User
       {
-        Username = register.Username,
+        Email = register.Email,
         PasswordHash = passwordHash,
         PasswordSalt = passwordSalt,
         Role = register.Role
       };
 
-      _context.Users.Add(user);
-      await _context.SaveChangesAsync();
-
-      return Ok(user);
+      try
+      {
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        return Ok(user);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Error saving user to database: {ex.Message}");
+        return StatusCode(500, "Internal server error");
+      }
     }
+
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModel login)
     {
-      var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == login.Username);
+      var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email);
 
       if (user == null)
       {
-        return Unauthorized("Invalid username");
+        return Unauthorized("Invalid Email");
       }
 
       if (!VerifyPasswordHash(login.Password, user.PasswordHash, user.PasswordSalt))
@@ -142,7 +150,7 @@ namespace ApiAdminDashboard.Controllers
       List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Name, user.Email),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 

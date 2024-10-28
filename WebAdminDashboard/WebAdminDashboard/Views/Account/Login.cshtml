@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="Password" class="control-label"></label>
-                    <input asp-for="Password" class="form-control" />
+                    <input asp-for="Password" class="form-control" type="password" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="form-group">
@@ -28,3 +28,13 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Log the role to the console
+        var role = '@ViewBag.Role';
+        if (role) {
+            console.log('User logged in with role:', role);
+        }
+    </script>
+}

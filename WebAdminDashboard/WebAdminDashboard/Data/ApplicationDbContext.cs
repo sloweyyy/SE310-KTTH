@@ -14,3 +14,4 @@ public class ApplicationDbContext : DbContext
     public DbSet<LoginModel> Login { get; set; }
     public DbSet<RegisterModel> Register { get; set; }
 }
+

@@ -45,27 +45,36 @@ namespace WebAdminDashboard.Controllers
 
         if (response.IsSuccessStatusCode)
         {
+          var responseContent = await response.Content.ReadAsStringAsync();
+          Console.WriteLine("Raw API response: " + responseContent); // Log raw response
+
           var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
+
+          // Then check if authResponse has the role populated
+          // Log the role for debugging
+          Console.WriteLine("Logged in role after deserialization: " + authResponse?.Role);
 
           // Ensure the token is not null
           if (authResponse?.Token != null)
           {
             HttpContext.Session.SetString("JwtToken", authResponse.Token);
-            HttpContext.Session.SetString("RefreshToken", authResponse.RefreshToken); // Store the refresh token
+            HttpContext.Session.SetString("RefreshToken", authResponse.RefreshToken);
 
-            // Log the role
-            _logger.LogInformation("User logged in with role: {Role}", authResponse.Role);
+            // Set ViewBag for frontend access
+            ViewBag.Role = authResponse.Role;
 
             // Redirect based on role
             if (authResponse.Role == "user")
             {
-              return Redirect("http://localhost:5056/");
+              return Redirect("http://localhost:5056/"); // Redirect to user area
             }
             else if (authResponse.Role == "admin")
             {
-              return Redirect("http://localhost:5056/Admin/Dashboard");
+              return Redirect("http://localhost:5056/Admin/Dashboard"); // Redirect to admin area
             }
           }
+
+
         }
         else
         {
@@ -76,6 +85,8 @@ namespace WebAdminDashboard.Controllers
       }
       return View(loginModel);
     }
+
+
 
 
 

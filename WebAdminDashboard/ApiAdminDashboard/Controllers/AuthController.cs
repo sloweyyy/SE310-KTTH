@@ -90,7 +90,8 @@ namespace ApiAdminDashboard.Controllers
       return Ok(new
       {
         token,
-        refreshToken
+        refreshToken,
+        role = user.Role
       });
     }
 

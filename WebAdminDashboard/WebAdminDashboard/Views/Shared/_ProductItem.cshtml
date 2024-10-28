@@ -1,0 +1,16 @@
+@model WebAdminDashboard.Models.ProductModel
+
+<div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+    <div class="product-item text-center border h-100 p-4">
+        <img class="img-fluid mb-4" src="~/img/@Model.ImageUrl" alt="@Model.Name">
+        <div class="mb-2">
+            @for (int i = 0; i < 5; i++) 
+            {
+            <small class="fa fa-star @(i < Model.Rating ? "text-primary" : "text-secondary")"></small>
+            }
+        </div>
+        <a href="" class="h6 d-inline-block mb-2">@Model.Name</a>
+        <h5 class="text-primary mb-3">$@Model.Price</h5>
+        <a asp-action="ProductDetail" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-outline-primary px-3">View Details</a>
+    </div>
+</div>

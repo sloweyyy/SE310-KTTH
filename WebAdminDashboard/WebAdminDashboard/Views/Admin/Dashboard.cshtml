@@ -1,0 +1,97 @@
+@model Tuple<List<WebAdminDashboard.Models.ProductModel>, List<string>, List<decimal>, List<double>>
+@{
+Layout = "_LayoutAdmin";
+ViewData["Title"] = "Admin Dashboard";
+var products = Model.Item1; 
+var labels = Model.Item2;
+var prices = Model.Item3; 
+var ratings = Model.Item4;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <h2 id="total-products">@products.Count()</h2>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Products</h5>
+                    <ul class="list-group">
+                        @foreach (var product in products.OrderByDescending(p => p.Id).Take(5))
+                        {
+                        <li class="list-group-item">
+                            @product.Name - @product.Price
+                            <img src="~/img/@product.ImageUrl" alt="Product Image" style="width:30px; height:30px;" class="float-end"/>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <canvas id="ratingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const priceChart = new Chart(ctxPrice, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Item2)),
+            datasets: [{
+                label: 'Product Prices',
+                data: @Html.Raw(Json.Serialize(Model.Item3)),
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const ctxRating = document.getElementById('ratingChart').getContext('2d');
+    const ratingChart = new Chart(ctxRating, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Item2)),
+            datasets: [{
+                label: 'Product Ratings',
+                data: @Html.Raw(Json.Serialize(Model.Item4)), 
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>

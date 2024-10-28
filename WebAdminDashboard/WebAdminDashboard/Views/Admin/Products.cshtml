@@ -1,0 +1,37 @@
+@model IEnumerable<WebAdminDashboard.Models.ProductModel>
+@{
+Layout = "_LayoutAdmin";
+ViewData["Title"] = "Admin Product Management";
+}
+<p>
+    <a asp-action="Create" asp-controller="Product" class="btn btn-primary">Create New Product</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var product in Model)
+    {
+    <tr>
+        <td>@product.Name</td>
+        <td>@product.Description</td>
+        <td>@product.Price</td>
+        <td><img src="~/img/@product.ImageUrl" alt="Product Image" style="width:50px; height:50px;" /></td>
+        <td>
+            <a asp-action="Edit" asp-controller="Product" asp-route-id="@product.Id" class="btn btn-warning">Edit</a>
+            <form asp-action="Delete" asp-controller="Product" asp-route-id="@product.Id" method="post">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </td>
+    </tr>
+    }
+    </tbody>
+</table>

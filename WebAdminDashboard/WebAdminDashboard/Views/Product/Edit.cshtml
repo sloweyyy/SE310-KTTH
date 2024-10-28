@@ -1,0 +1,39 @@
+@model WebAdminDashboard.Models.ProductModel
+
+@{
+ViewData["Title"] = "Edit Product";
+Layout = "_LayoutAdmin";
+}
+
+<h2>Edit Product</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Product Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" required></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label">Price</label>
+        <input asp-for="Price" type="number" class="form-control" step="0.01" required />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ImageUrl" class="form-label">Image URL</label>
+        <input asp-for="ImageUrl" class="form-control" required />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-warning">Update Product</button>
+    <a asp-action="Products" asp-controller="Admin" class="btn btn-secondary">Cancel</a>
+</form>
+

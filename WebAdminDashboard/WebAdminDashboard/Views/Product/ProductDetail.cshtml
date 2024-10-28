@@ -1,0 +1,23 @@
+@model WebAdminDashboard.Models.ProductModel
+
+<div class="container">
+    <div class="row" style="padding: 4rem">
+        <div class="col-md-6">
+            <img class="img-fluid mb-4" src="~/img/@Model.ImageUrl" alt="@Model.Name">
+        </div>
+        <div class="col-md-6">
+            <h1>@Model.Name</h1>
+            <p>@Model.Description</p>
+            <h2 class="text-primary">$@Model.Price</h2>
+            
+            <div class="mb-2">
+                @for (int i = 0; i < 5; i++) 
+                {
+                    <small class="fa fa-star @(i < Model.Rating ? "text-primary" : "text-secondary")"></small>
+                }
+            </div>
+
+            <button class="btn btn-primary">Add to Cart</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+CREATE TABLE Products (
+    Id INT PRIMARY KEY IDENTITY(1,1),  
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(255) NULL,
+    Price DECIMAL(18, 2) NULL,  
+    ImageUrl NVARCHAR(255) NULL,
+    Rating FLOAT NULL  
+);
+
+INSERT INTO Products (Name, Description, Price, ImageUrl, Rating)
+VALUES
+    ('Natural Hair Oil', 'A blend of natural oils for healthy hair.', 19.99, 'product-1.png', 4.5),
+    ('Herbal Shampoo', 'Gentle shampoo with herbal extracts.', 14.99, 'product-2.png', 4.7),
+    ('Nourishing Hair Mask', 'Deep conditioning hair mask for all hair types.', 24.99, 'product-1.png', 4.6),
+    ('Moisturizing Hair Cream', 'Lightweight cream for hydration and shine.', 15.49, 'product-2.png', 4.3),
+    ('Smoothing Hair Serum', 'Serum for frizz control and smoothness.', 22.50, 'product-1.png', 4.8);

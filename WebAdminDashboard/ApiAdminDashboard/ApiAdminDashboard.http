@@ -1,0 +1,6 @@
+@ApiAdminDashboard_HostAddress = http://localhost:5159
+
+GET {{ApiAdminDashboard_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -18,7 +18,7 @@ namespace WebAdminDashboard.Controllers
     public AccountController(HttpClient httpClient)
     {
       _httpClient = httpClient;
-      _httpClient.BaseAddress = new Uri("http://localhost:5159/api/");
+      _httpClient.BaseAddress = new Uri("http://localhost:5159/api/v1/");
     }
 
     public IActionResult Login()
@@ -36,22 +36,30 @@ namespace WebAdminDashboard.Controllers
 
         if (response.IsSuccessStatusCode)
         {
-          // Use AuthResponseModel instead of AuthResponse
-          var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
-          HttpContext.Session.SetString("JwtToken", authResponse.Token); // Corrected property name
+          var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
 
-          // Redirect based on role
-          if (authResponse.Role == "user")
+          // Ensure the token is not null
+          if (authResponse?.Token != null)
           {
-            return RedirectToAction("Index", "Product");
-          }
-          else if (authResponse.Role == "admin")
-          {
-            return RedirectToAction("Dashboard", "Admin");
+            HttpContext.Session.SetString("JwtToken", authResponse.Token);
+
+            // Redirect based on role
+            if (authResponse.Role == "user")
+            {
+              return RedirectToAction("Index", "Product");
+            }
+            else if (authResponse.Role == "admin")
+            {
+              return RedirectToAction("Dashboard", "Admin");
+            }
           }
         }
-
-        ModelState.AddModelError("", "Invalid login attempt.");
+        else
+        {
+          // Read the content for error details
+          var errorContent = await response.Content.ReadAsStringAsync();
+          ModelState.AddModelError("", errorContent); // Log the error content for debugging
+        }
       }
       return View(loginModel);
     }
@@ -87,5 +95,6 @@ namespace WebAdminDashboard.Controllers
   {
     public string Token { get; set; }
     public string RefreshToken { get; set; }
+    public string Role { get; set; }
   }
 }

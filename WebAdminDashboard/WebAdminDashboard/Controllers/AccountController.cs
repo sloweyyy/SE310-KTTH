@@ -1,76 +1,91 @@
 using Microsoft.AspNetCore.Mvc;
 using WebAdminDashboard.Models;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace WebAdminDashboard.Controllers
 {
   public class AccountController : Controller
   {
+    private readonly HttpClient _httpClient;
+
+    public AccountController(HttpClient httpClient)
+    {
+      _httpClient = httpClient;
+      _httpClient.BaseAddress = new Uri("http://localhost:5159/api/");
+    }
+
     public IActionResult Login()
     {
       return View();
     }
 
     [HttpPost]
-    public IActionResult Login(LoginModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginModel loginModel)
     {
       if (ModelState.IsValid)
       {
-        // Logic to authenticate the user
-        // ...
+        var response = await _httpClient.PostAsJsonAsync("Auth/login", loginModel);
 
-        // Get the user's role (replace with your actual logic)
-        string userRole = GetUserRole(model.Email);
+        if (response.IsSuccessStatusCode)
+        {
+          // Use AuthResponseModel instead of AuthResponse
+          var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseModel>();
+          HttpContext.Session.SetString("JwtToken", authResponse.Token); // Corrected property name
 
-        // Redirect based on the role
-        if (userRole == "user")
-        {
-          return RedirectToAction("Index", "Home");
+          // Redirect based on role
+          if (authResponse.Role == "user")
+          {
+            return RedirectToAction("Index", "Product");
+          }
+          else if (authResponse.Role == "admin")
+          {
+            return RedirectToAction("Dashboard", "Admin");
+          }
         }
-        else if (userRole == "admin")
-        {
-          return RedirectToAction("Index", "Dashboard");
-        }
-        else
-        {
-          // Handle invalid role
-          return View("Error");
-        }
+
+        ModelState.AddModelError("", "Invalid login attempt.");
       }
-
-      // If authentication fails, display the login form again with error messages
-      return View(model);
-    }
-
-    // Placeholder method to get the user's role
-    private string GetUserRole(string email)
-    {
-      // Replace this with your actual logic to retrieve the user's role from your database or authentication system
-      // For example, you could use a database query or an API call to get the role.
-      // ...
-
-      // Return the user's role
-      return "user"; // Replace with the actual role
-    }
-
-    public IActionResult Register()
-    {
-      return View();
+      return View(loginModel);
     }
 
     [HttpPost]
-    public IActionResult Register(RegisterModel model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterModel registerModel)
     {
       if (ModelState.IsValid)
       {
-        // Logic to register the user
-        // ...
+        var response = await _httpClient.PostAsJsonAsync("Auth/register", registerModel);
 
-        // If registration is successful, redirect to the login page
-        return RedirectToAction("Login");
+        if (response.IsSuccessStatusCode)
+        {
+          return RedirectToAction("Login");
+        }
+
+        ModelState.AddModelError("", "Invalid registration attempt.");
       }
-
-      // If registration fails, display the registration form again with error messages
-      return View(model);
+      return View(registerModel);
     }
+
+
+    public IActionResult Logout()
+    {
+      HttpContext.Session.Remove("JwtToken");
+      return RedirectToAction("Login", "Auth");
+    }
+  }
+
+
+  public class AuthResponse
+  {
+    public string Token { get; set; }
+    public string RefreshToken { get; set; }
   }
 }

@@ -1,16 +1,88 @@
+-- Create the database
+CREATE DATABASE KTTH;
+USE KTTH;
+
+-- Create the Categories table
+CREATE TABLE Categories (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    CONSTRAINT UQ_CategoryName UNIQUE (Name) -- Ensure unique category names
+);
+
+-- Insert categories
+INSERT INTO Categories (Name)
+VALUES 
+    ('Electronics'),
+    ('Clothing'),
+    ('Home Decor'),
+    ('Footwear'),
+    ('Gadgets'),
+    ('Hair Care'),
+    ('Office Furniture'); -- Removed duplicate Electronics
+
+-- Create the Products table
 CREATE TABLE Products (
     Id INT PRIMARY KEY IDENTITY(1,1),  
     Name NVARCHAR(100) NOT NULL,
     Description NVARCHAR(255) NULL,
     Price DECIMAL(18, 2) NULL,  
     ImageUrl NVARCHAR(255) NULL,
-    Rating FLOAT NULL  
+    Rating FLOAT NULL,
+    CategoryId INT,
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id) -- Foreign key reference
 );
 
+-- Insert products
+INSERT INTO Products (Name, Description, Price, ImageUrl, Rating, CategoryId)
+VALUES
+    ('Canon Camera', 'High-quality DSLR camera for professional photography.', 599.99, 'product-1.jpg', 4.8, (SELECT Id FROM Categories WHERE Name = 'Electronics')),
+    ('Blue Sweater', 'Comfortable and stylish blue sweater for all seasons.', 29.99, 'product-2.jpg', 4.2, (SELECT Id FROM Categories WHERE Name = 'Clothing')),
+    ('Table Lamp', 'Elegant table lamp to enhance your home decor.', 49.99, 'product-3.jpg', 4.5, (SELECT Id FROM Categories WHERE Name = 'Home Decor')),
+    ('Running Shoes', 'Durable and lightweight running shoes for sports.', 89.99, 'product-4.jpg', 4.7, (SELECT Id FROM Categories WHERE Name = 'Footwear')),
+    ('Drone', 'Advanced drone with camera for capturing aerial views.', 299.99, 'product-5.jpg', 4.6, (SELECT Id FROM Categories WHERE Name = 'Gadgets')),
+    ('Smart Watch', 'Wearable device with multiple health-tracking features.', 199.99, 'product-6.jpg', 4.8, (SELECT Id FROM Categories WHERE Name = 'Electronics')),
+    ('Black Blouse', 'Elegant black blouse suitable for various occasions.', 35.99, 'product-7.jpg', 4.3, (SELECT Id FROM Categories WHERE Name = 'Clothing')),
+    ('Hair Care Set', 'Shampoo and conditioner for complete hair care.', 19.99, 'product-8.jpg', 4.5, (SELECT Id FROM Categories WHERE Name = 'Hair Care')),
+    ('Office Chair', 'Ergonomic chair for comfortable office seating.', 129.99, 'product-9.jpg', 4.4, (SELECT Id FROM Categories WHERE Name = 'Office Furniture'));
+
+-- Insert additional products
 INSERT INTO Products (Name, Description, Price, ImageUrl, Rating)
 VALUES
-    ('Natural Hair Oil', 'A blend of natural oils for healthy hair.', 19.99, 'product-1.png', 4.5),
-    ('Herbal Shampoo', 'Gentle shampoo with herbal extracts.', 14.99, 'product-2.png', 4.7),
-    ('Nourishing Hair Mask', 'Deep conditioning hair mask for all hair types.', 24.99, 'product-1.png', 4.6),
-    ('Moisturizing Hair Cream', 'Lightweight cream for hydration and shine.', 15.49, 'product-2.png', 4.3),
-    ('Smoothing Hair Serum', 'Serum for frizz control and smoothness.', 22.50, 'product-1.png', 4.8);
+    ('Lorem  1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 19.99, 'product-1.jpg', 4.5),
+    ('Dolor 2', 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 14.99, 'product-2.jpg', 4.7),
+    ('Ipsum  3', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.', 24.99, 'product-3.jpg', 4.6),
+    ('Consectetur 4', 'Duis aute irure dolor in reprehenderit in voluptate velit esse.', 15.49, 'product-4.jpg', 4.3),
+    ('Adipiscing 5', 'Excepteur sint occaecat cupidatat non proident, sunt in culpa.', 22.50, 'product-5.jpg', 4.8);
+
+-- Create the Users table
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Email NVARCHAR(256) NOT NULL,
+    PasswordHash VARBINARY(128) NOT NULL,
+    PasswordSalt VARBINARY(128) NOT NULL,
+    Role NVARCHAR(50) NOT NULL
+);
+
+-- Create the RefreshTokens table
+CREATE TABLE RefreshTokens (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Token NVARCHAR(256) NOT NULL,
+    UserId INT NOT NULL,
+    ExpiryDate DATETIME NOT NULL,
+    IsRevoked BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+
+-- Select statements to view data
+SELECT * FROM Categories;
+SELECT * FROM Products;
+SELECT * FROM Users;
+SELECT * FROM RefreshTokens; -- This will be empty until you insert data into Users
+
+Drop Table Products
+drop table Categories
+
+SELECT Name, COUNT(*) 
+FROM Categories 
+GROUP BY Name 
+HAVING COUNT(*) > 1;
